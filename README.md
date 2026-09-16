@@ -4,9 +4,9 @@ Signature-verified webhook receiver in Python. HMAC verification with
 constant-time comparison, replay-window enforcement, idempotent delivery
 handling.
 
-Python port of [webhook-guard](https://github.com/raishagzz/webhook-guard)
-(TypeScript). Same contract, same status-code semantics, same test scenarios,
-implemented independently.
+Companion to [webhook-guard](https://github.com/raishagzz/webhook-guard), which
+implements the same verification logic in TypeScript on AWS Lambda, with
+DynamoDB-backed rate limiting.
 
 ![CI](https://github.com/raishagzz/webhook-guard-py/actions/workflows/ci.yml/badge.svg)
 
@@ -15,11 +15,14 @@ implemented independently.
 Webhook endpoints are public URLs. Anything that arrives at one is untrusted
 until proven otherwise.
 
-I built the TypeScript version first, working from payment webhook handling
-I've shipped on a production FastAPI service. Both repos are clean-room
-implementations of that design; no code from that system is reproduced here.
-This one exists because the original problem was a Python problem, and porting
-it back made the design easier to talk about.
+Both repos draw on payment webhook handling I've shipped on a production
+FastAPI service. Neither reproduces code from it.
+
+The crypto is the same in both. The stateful parts aren't, and that's the
+interesting difference: this version keeps claims in process memory behind a
+Protocol, while the Lambda version needs a shared store because there's no
+process to keep anything in. Same problem, different answer once the deployment
+model changes.
 
 Four questions get answered before a payload does anything:
 
